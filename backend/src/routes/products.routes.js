@@ -3,13 +3,23 @@ import { db } from "../db.js";
 
 const router = Router();
 
-// Mostrar produtos
+// listar todos
 router.get("/products", async (req, res) => {
   const [rows] = await db.query("SELECT * FROM produtos_lorenamendes");
   res.json(rows);
 });
 
-// Cadastrar produto
+// buscar por id
+router.get("/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const [rows] = await db.query(
+    "SELECT * FROM produtos_lorenamendes WHERE id = ?",
+    [id]
+  );
+  res.json(rows[0]);
+});
+
+// cadastrar
 router.post("/products", async (req, res) => {
   const { nome, preco, descricao } = req.body;
   await db.query(
