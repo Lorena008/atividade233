@@ -1,7 +1,7 @@
 const API = "http://localhost:3000/products";
 
 
-// ================= LISTAR =================
+// ================= LISTAR PRODUTOS =================
 if (document.getElementById("produtos")) {
 
   fetch(API)
@@ -14,22 +14,26 @@ if (document.getElementById("produtos")) {
       produtos.forEach(produto => {
 
         div.innerHTML += `
-          <div style="margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:8px;">
+        <div style="margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:8px;">
 
-            <strong>${produto.nome}</strong><br>
-            Preço: R$ ${produto.preco}<br><br>
+          <strong>${produto.nome}</strong><br>
+          Preço: R$ ${produto.preco}<br><br>
 
-            <a href="detalhes.html?id=${produto.id}">
-              Ver detalhes
-            </a>
+          <a href="detalhes.html?id=${produto.id}">
+            Ver detalhes
+          </a>
 
-            <br><br>
+          <br><br>
 
-            <button onclick="excluirProduto(${produto.id})">
-              Excluir
-            </button>
+          <a href="editar.html?id=${produto.id}">
+            <button>Editar</button>
+          </a>
 
-          </div>
+          <button onclick="excluirProduto(${produto.id})">
+            Excluir
+          </button>
+
+        </div>
         `;
       });
 
@@ -38,7 +42,7 @@ if (document.getElementById("produtos")) {
 }
 
 
-// ================= CADASTRAR =================
+// ================= CADASTRAR PRODUTO =================
 if (document.getElementById("formProduto")) {
 
   document
@@ -76,11 +80,10 @@ if (document.getElementById("formProduto")) {
 }
 
 
-// ================= DETALHES =================
+// ================= DETALHES DO PRODUTO =================
 if (document.getElementById("detalhes")) {
 
   const params = new URLSearchParams(window.location.search);
-
   const id = params.get("id");
 
   fetch(`${API}/${id}`)
@@ -98,7 +101,7 @@ if (document.getElementById("detalhes")) {
 }
 
 
-// ================= EXCLUIR =================
+// ================= EXCLUIR PRODUTO =================
 async function excluirProduto(id) {
 
   const confirmar = confirm("Tem certeza que deseja excluir este produto?");
@@ -112,4 +115,57 @@ async function excluirProduto(id) {
   alert("Produto excluído com sucesso!");
 
   location.reload();
+}
+
+
+// ================= EDITAR PRODUTO =================
+if (document.getElementById("formEditar")) {
+
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  // preencher formulário com dados atuais
+  fetch(`${API}/${id}`)
+    .then(res => res.json())
+    .then(produto => {
+
+      document.getElementById("nome").value = produto.nome;
+      document.getElementById("preco").value = produto.preco;
+      document.getElementById("descricao").value = produto.descricao;
+
+    });
+
+  // atualizar produto
+  document
+    .getElementById("formEditar")
+    .addEventListener("submit", async e => {
+
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const preco = document.getElementById("preco").value;
+      const descricao = document.getElementById("descricao").value;
+
+      await fetch(`${API}/${id}`, {
+
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          nome,
+          preco,
+          descricao
+        })
+
+      });
+
+      alert("Produto atualizado com sucesso!");
+
+      window.location.href = "index.html";
+
+    });
+
 }
